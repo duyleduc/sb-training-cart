@@ -1,7 +1,9 @@
 package com.example.DemoSpringBoot.services.serviceClasses;
 
-import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
+
+import javax.persistence.EntityExistsException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,11 +11,12 @@ import org.springframework.stereotype.Service;
 import com.example.DemoSpringBoot.entities.Catalogs;
 import com.example.DemoSpringBoot.entities.Items;
 import com.example.DemoSpringBoot.mappers.ItemMapper;
-import com.example.DemoSpringBoot.models.DTO.EditItemDTO;
 import com.example.DemoSpringBoot.models.DTO.ItemDTO;
+import com.example.DemoSpringBoot.models.DTO.requestbody.CreateItemDTO;
+import com.example.DemoSpringBoot.models.DTO.requestbody.EditItemDTO;
 import com.example.DemoSpringBoot.repositories.CatalogRepository;
 import com.example.DemoSpringBoot.repositories.ItemRepository;
-import com.example.DemoSpringBoot.services.ItemServiceImpl;
+import com.example.DemoSpringBoot.services.Impl.ItemServiceImpl;
 
 @Service
 public class ItemService implements ItemServiceImpl {
@@ -28,9 +31,9 @@ public class ItemService implements ItemServiceImpl {
     private ItemMapper mapper;
 
     @Override
-    public ItemDTO getItem(BigInteger ItemID) throws Exception {
+    public ItemDTO getItem(String itemID) throws Exception {
         try {
-            Items item = iRepository.findById(ItemID).get();
+            Items item = iRepository.findByItemID(itemID).get();
             return mapper.item2DTO(item);
         } catch (Exception exception) {
             throw exception;
@@ -38,55 +41,80 @@ public class ItemService implements ItemServiceImpl {
     }
 
     @Override
-    public List<ItemDTO> getAllItems(BigInteger CatalogId) throws Exception {
-        try {
-            Catalogs catalog = cRepository.findById(CatalogId).get();
-            return mapper.items2DTOs(catalog.getItems());
-        } catch (Exception exception) {
-            throw exception;
+    public List<ItemDTO> getAllItems(String catalogID) throws Exception {
+        // have catalogid query params
+        if (catalogID != null) {
+            try {
+                Catalogs catalog = cRepository.findByCatalogID(catalogID).get();
+                return mapper.items2DTOs(catalog.getItemsList());
+            } catch (Exception exception) {
+                throw exception;
+            }
+        } else {
+            try {
+                return mapper.items2DTOs(iRepository.findAll());
+
+            } catch (Exception exception) {
+                throw exception;
+            }
         }
     }
 
     @Override
-    public ItemDTO createItem(BigInteger catID, ItemDTO itemDTO) throws Exception {
+    public ItemDTO createItem(CreateItemDTO itemDTO) throws Exception {
+        Catalogs catalog = ExistwCatalogID(itemDTO.getCatalogID());
+        ValidItemID(itemDTO.getItemID());
         try {
-            Catalogs catalog = cRepository.findById(catID).get();
+
             Items sampleItem = new Items();
             sampleItem.setItemID(itemDTO.getItemID());
             sampleItem.setItemName(itemDTO.getItemName());
             sampleItem.setDescription(itemDTO.getDescription());
             sampleItem.setCatal0g(catalog);
+            sampleItem.setQuantity(itemDTO.getQuantity());
 
-            iRepository.save(sampleItem);
-
-            return mapper.item2DTO(sampleItem);
+            Items returnItem = iRepository.save(sampleItem);
+            return mapper.item2DTO(returnItem);
         } catch (Exception e) {
             throw e;
         }
-
     }
 
     @Override
-    public ItemDTO editItem(BigInteger ItemID, EditItemDTO editItemDTO, BigInteger CatalogId) throws Exception {
-        
-        
+    public ItemDTO editItem(String itemID, EditItemDTO editItem) throws Exception {
+        // Validate
+        if (!itemID.equals(editItem.getItemID())) {
+            ValidItemID(editItem.getItemID());
+        }
+        Catalogs newCatalogs = ExistwCatalogID(editItem.getCatalogID());
         try {
-            Catalogs newcatalog = cRepository.findByCatalogID(editItemDTO.getCatalogID()).get();
-            Items sampleItem = iRepository.findById(ItemID).get();
-            if(sampleItem.getCatal0g().getID().intValue() != CatalogId.intValue()){
-                throw new Exception("This Item is not from this Catalog. Check your CatalogID");
-            }
-            
-            sampleItem.setItemID(editItemDTO.getItemID());
-            sampleItem.setItemName(editItemDTO.getItemName());
-            sampleItem.setDescription(editItemDTO.getDescription());
-            sampleItem.setCatal0g(newcatalog);
-            
-            iRepository.save(sampleItem);
+            Items item = iRepository.findByItemID(itemID).get();
+            item.setCatal0g(newCatalogs);
+            item.setItemID(editItem.getItemID());
+            item.setItemName(editItem.getItemName());
+            item.setDescription(editItem.getDescription());
+            item.setQuantity(editItem.getQuantity());
 
-            return mapper.item2DTO(sampleItem);
+            Items returnItem = iRepository.save(item);
+            return mapper.item2DTO(returnItem);
         } catch (Exception e) {
             throw e;
+        }
+    }
+
+    private Catalogs ExistwCatalogID(String catalogID) throws Exception {
+        Optional<Catalogs> DBreturnCatalog = cRepository.findByCatalogID(catalogID);
+        if (DBreturnCatalog.isEmpty()) {
+            throw new NullPointerException(
+                    "No Catalog with CatlogID: " + catalogID + " were found. Plz try KHALID");
+        }
+        return DBreturnCatalog.get();
+    }
+
+    private void ValidItemID(String itemID) throws Exception {
+        Optional<Items> DBreturnItem = iRepository.findByItemID(itemID);
+        if (DBreturnItem.isPresent()) {
+            throw new EntityExistsException("Already got that Item with ItemID " + itemID + " dawg.");
         }
     }
 

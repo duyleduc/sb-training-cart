@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.DemoSpringBoot.models.DTO.UserDTO;
-import com.example.DemoSpringBoot.services.UserServiceImpl;
+import com.example.DemoSpringBoot.services.Impl.UserServiceImpl;
 
 @RestController
 @RequestMapping(value = "api/v1/protected/users")
@@ -22,16 +22,6 @@ import com.example.DemoSpringBoot.services.UserServiceImpl;
 public class UserController {
     @Autowired
     private UserServiceImpl uService;
-
-    // @GetMapping(value = "")
-    // public List<UserDTO> getAllUsers() throws Exception {
-    //     return uService.getAllUsers();
-    // }
-
-    // @GetMapping(value = "/{id}")
-    // public UserDTO getOneByID(@PathVariable BigInteger id) throws Exception {
-    //     return uService.getOneUser(id);
-    // }
 
     @PostMapping(value = "")
     public UserDTO postUser(@Valid @RequestBody UserDTO user) throws Exception {
@@ -42,5 +32,4 @@ public class UserController {
     public UserDTO editUser(@Valid @RequestBody UserDTO user, @PathVariable BigInteger id) throws Exception {
         return uService.editUser(user, id);
     }
-
 }

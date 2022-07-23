@@ -1,7 +1,5 @@
 package com.example.DemoSpringBoot.controllerz.privAte;
 
-import java.math.BigInteger;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,24 +11,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.DemoSpringBoot.models.DTO.EditItemDTO;
 import com.example.DemoSpringBoot.models.DTO.ItemDTO;
-import com.example.DemoSpringBoot.services.ItemServiceImpl;
+import com.example.DemoSpringBoot.models.DTO.requestbody.CreateItemDTO;
+import com.example.DemoSpringBoot.models.DTO.requestbody.EditItemDTO;
+import com.example.DemoSpringBoot.services.Impl.ItemServiceImpl;
 
 @RestController
 @Transactional
-@RequestMapping("api/v1/protected/catalogs/{CatalogId}/items")
+@RequestMapping("api/v1/protected/items")
 public class ItemController {
     @Autowired
     private ItemServiceImpl iService;
 
     @PostMapping(value = "")
-    public ItemDTO createItem(@Valid @RequestBody ItemDTO itemDTO, @PathVariable BigInteger CatalogId) throws Exception {
-        return iService.createItem(CatalogId, itemDTO);
+    public ItemDTO createItem( @Valid @RequestBody CreateItemDTO itemDTO) throws Exception {
+        return iService.createItem(itemDTO);
     }
 
     @PutMapping(value = "/{itemID}")
-    public ItemDTO putItem(@Valid @RequestBody EditItemDTO itemDTO, @PathVariable BigInteger CatalogId, @PathVariable BigInteger itemID) throws Exception {
-        return iService.editItem(itemID, itemDTO, CatalogId);
+    public ItemDTO updateItem(@PathVariable String itemID, @Valid @RequestBody EditItemDTO itemDTO)
+            throws Exception {
+        return iService.editItem(itemID, itemDTO);
     }
 }

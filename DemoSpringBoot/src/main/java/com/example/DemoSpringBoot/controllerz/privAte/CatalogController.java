@@ -1,8 +1,5 @@
 package com.example.DemoSpringBoot.controllerz.privAte;
 
-import java.math.BigInteger;
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.DemoSpringBoot.models.DTO.CatalogDTO;
-import com.example.DemoSpringBoot.services.CatalogServiceImpl;
+import com.example.DemoSpringBoot.services.Impl.CatalogServiceImpl;
 
 @RestController
 @Transactional 
 @RequestMapping("api/v1/protected/catalogs")
 public class CatalogController {
-
     @Autowired
     private CatalogServiceImpl cService;
 
@@ -30,14 +26,9 @@ public class CatalogController {
         return cService.createCatalog(catalogDTO);
     }
 
-    @PutMapping(value = "/{id}")
-    public CatalogDTO editUser(@Valid @RequestBody CatalogDTO catalogDTO, @PathVariable BigInteger id) throws Exception {
-        return cService.editCatalog(id, catalogDTO);
-    }
-
-    @PostMapping(value = "/seeding")
-    public List<CatalogDTO> seedCatalog() throws Exception{
-        return cService.seedCatalogs();
+    @PutMapping(value = "/{CatalogID}")
+    public CatalogDTO editUser(@Valid @RequestBody CatalogDTO catalogDTO, @PathVariable String CatalogID) throws Exception {
+        return cService.editCatalog(CatalogID, catalogDTO);
     }
 
     

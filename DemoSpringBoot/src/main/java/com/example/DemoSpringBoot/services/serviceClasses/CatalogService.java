@@ -1,7 +1,5 @@
 package com.example.DemoSpringBoot.services.serviceClasses;
 
-import java.io.File;
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -13,15 +11,11 @@ import com.example.DemoSpringBoot.entities.Catalogs;
 import com.example.DemoSpringBoot.mappers.CatalogMapper;
 import com.example.DemoSpringBoot.models.DTO.CatalogDTO;
 import com.example.DemoSpringBoot.repositories.CatalogRepository;
-import com.example.DemoSpringBoot.services.CatalogServiceImpl;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.DemoSpringBoot.services.Impl.CatalogServiceImpl;
 
 @Service
 public class CatalogService implements CatalogServiceImpl {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    
     @Autowired
     CatalogMapper mapper;
 
@@ -29,9 +23,9 @@ public class CatalogService implements CatalogServiceImpl {
     CatalogRepository repository;
 
     @Override
-    public CatalogDTO getCatalog(BigInteger id) throws Exception {
+    public CatalogDTO getCatalog(String CatalogID) throws Exception {
         try {
-            Optional<Catalogs> catalog = repository.findById(id);
+            Optional<Catalogs> catalog = repository.findByCatalogID(CatalogID);
             return mapper.catalog2DTO(catalog.get());
         } catch (Exception e) {
             throw e;
@@ -50,7 +44,8 @@ public class CatalogService implements CatalogServiceImpl {
 
     @Override
     public CatalogDTO createCatalog(CatalogDTO catalogDTO) throws Exception {
-        if (repository.IsCataLog(catalogDTO.getCatalogID())) {
+        // check existence
+        if (repository.findByCatalogID(catalogDTO.getCatalogID()).isPresent()) {
             throw new Exception("Catalog already exist. If you wanna edit plz use PUT METHOD.");
         }
         try {
@@ -62,47 +57,32 @@ public class CatalogService implements CatalogServiceImpl {
     }
 
     @Override
-    public CatalogDTO editCatalog(BigInteger id, CatalogDTO editInfo) throws Exception {
-        // check Catalog exist with String CatalogID
-        if (repository.IsCataLog(editInfo.getCatalogID())) {
-            Catalogs dBCatalogs = repository.findByCatalogID(editInfo.getCatalogID()).get();
-            BigInteger DatabaseID = dBCatalogs.getID();
-            // String DatabaseName =  dBCatalogs.getCatalogName();
-            // check Catalog String id & PK id
-            if (DatabaseID.intValue() == id.intValue()) {
-                throw new Exception("Already edit the Catalog with id: " + id + ".");
-            } else {
-                throw new Exception("This CatalogID is already exist. Plz choose different Name");
-            }
+    public CatalogDTO editCatalog(String CatalogID, CatalogDTO editInfo) throws Exception {
+        Optional<Catalogs> DBCatalog = repository.findByCatalogID(CatalogID);
+        if (DBCatalog.isEmpty()) {
+            throw new Exception("No Catalog found with CatalogID: " + CatalogID);
+        }
+        Optional<Catalogs> isCatalogwithsameID = repository.findByCatalogID(editInfo.getCatalogID());
+        if (isCatalogwithsameID.isPresent()) {
+            throw new Exception(
+                    "The CatalogID " + editInfo.getCatalogID() + " is already exist. Plz try different one");
         }
         try {
-            Catalogs catalog = repository.findById(id).get();
+            DBCatalog.get().setCatalogID(editInfo.getCatalogID());
+            DBCatalog.get().setCatalogName(editInfo.getCatalogName());
+            DBCatalog.get().setDescription(editInfo.getDescription());
+            DBCatalog.get().setUpdateDate(new Date());
 
-            catalog.setCatalogID(editInfo.getCatalogID());
-            catalog.setCatalogName(editInfo.getCatalogName());
-            catalog.setDescription(editInfo.getDescription());
-            catalog.setUpdateDate(new Date());
+            repository.save(DBCatalog.get());
 
-            repository.save(catalog);
-
-            return mapper.catalog2DTO(catalog);
-        } catch (Exception exception) {
-            throw exception;
+            return mapper.catalog2DTO(DBCatalog.get());
+        } catch (Exception e) {
+            throw e;
         }
     }
 
     @Override
-    public CatalogDTO deleteCatalogDTO(BigInteger id) throws Exception {
+    public CatalogDTO deleteCatalogDTO(String CatalogID) throws Exception {
         return null;
     }
-
-    @Override
-    public List<CatalogDTO> seedCatalogs() throws Exception {
-        List<CatalogDTO> CatalogDTOsList = objectMapper.readValue(new File("DemoSpringBoot/src/main/java/com/example/DemoSpringBoot/templates/seeds/CatalogSeed.json"),
-                new TypeReference<List<CatalogDTO>>() {
-                });
-        repository.saveAll(mapper.DTOs2Catalogs(CatalogDTOsList));
-        return getAllCatalogs();
-    }
-
 }
