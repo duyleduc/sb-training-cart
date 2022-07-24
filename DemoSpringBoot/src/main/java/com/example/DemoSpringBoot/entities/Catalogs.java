@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -33,7 +34,7 @@ public class Catalogs {
     @Column(name = "catalogID", length = 8)
     private String catalogID;
 
-    @OneToMany(mappedBy = "catal0g", cascade = { CascadeType.ALL })
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "catal0g", cascade = { CascadeType.ALL })
     private List<Items> itemsList;
 
     @Column(length = 64)

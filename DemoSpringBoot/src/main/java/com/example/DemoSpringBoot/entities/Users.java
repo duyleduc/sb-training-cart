@@ -28,21 +28,21 @@ import lombok.NoArgsConstructor;
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(columnDefinition = "BIGSERIAL PRIMARY KEY NOT NULL")
+    @Column(columnDefinition = "BIGSERIAL NOT NULL", name = "userID")
     private BigInteger id;
 
     @Column
-    @NotEmpty(message = "first name is required")
+    @NotEmpty
     @Size(max = 8, message = "The length of first name must be between 1 and 8 characters.")
     private String firstName;
 
     @Column
-    @NotEmpty(message = "last name is required")
+    @NotEmpty
     @Size(max = 64, message = "The length of last name must be between 1 and 64 characters.")
     private String lastName;
 
     @Column
-    @NotEmpty(message = "The email address is required.")
+    @NotEmpty
     @Email(message = "The email address is invalid.", flags = { Flag.CASE_INSENSITIVE })
     @Size(max = 64, message = "The length of email not exceed 64 characters")
     private String email;
@@ -50,6 +50,10 @@ public class Users {
     @Column
     @PhoneNumberConstraint
     private String phone;
+
+    @Column
+    @NotEmpty
+    private String password;
 
     @Column(updatable = false)
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
