@@ -20,7 +20,7 @@ public class ItemPublicController {
     private ItemServiceImpl iService;
 
     @GetMapping(value = "")
-    public @ResponseBody List<ItemDTO> getAllItems(@RequestParam("CatalogID") String CatalogID) throws Exception {
+    public @ResponseBody List<ItemDTO> getAllItems(@RequestParam(name = "CatalogID", required = false) String CatalogID) throws Exception {
         return iService.getAllItems(CatalogID);
     }
 
