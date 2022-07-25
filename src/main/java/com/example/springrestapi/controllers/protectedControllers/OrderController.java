@@ -23,7 +23,6 @@ import com.example.springrestapi.models.OrderDto;
 import com.example.springrestapi.responseBodies.AllOrderResponse;
 import com.example.springrestapi.responseBodies.SingleOrderResponse;
 import com.example.springrestapi.services.interfaces.OrderService;
-import com.example.springrestapi.utils.RestTemplateUtil;
 
 @RestController
 @RequestMapping(RequestConfig.BASE_PROTECTED_URL + "/orders")
@@ -32,28 +31,22 @@ public class OrderController {
     @Autowired
     OrderService orderService;
 
-    @Autowired
-    RestTemplateUtil restTemplateUtil;
-
     @GetMapping
-    public ResponseEntity<List<AllOrderResponse>> getOrders(HttpServletRequest request) throws Exception {
-        restTemplateUtil.authVerify(request, RequestConfig.AUTH_URL + "/verify/admin");
+    public ResponseEntity<List<AllOrderResponse>> getOrders() throws Exception {
         List<AllOrderResponse> response = orderService.getOrders();
         return new ResponseEntity<List<AllOrderResponse>>(response, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<SingleOrderResponse> createOrder(@Valid @RequestBody OrderDto body,
-            HttpServletRequest request) throws Exception {
-        restTemplateUtil.authVerify(request, RequestConfig.AUTH_URL + "/verify/admin");
+    public ResponseEntity<SingleOrderResponse> createOrder(@Valid @RequestBody OrderDto body) throws Exception {
+
         SingleOrderResponse response = orderService.createOrder(body);
         return new ResponseEntity<SingleOrderResponse>(response, HttpStatus.OK);
     }
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<SingleOrderResponse> editOrder(@Valid @RequestBody EditOrderDto body,
-            @PathVariable(value = "id") UUID id, HttpServletRequest request) throws Exception {
-        restTemplateUtil.authVerify(request, RequestConfig.AUTH_URL + "/verify/admin");
+            @PathVariable(value = "id") UUID id) throws Exception {
 
         SingleOrderResponse response = orderService.editOrder(body, id);
         return new ResponseEntity<SingleOrderResponse>(response, HttpStatus.OK);

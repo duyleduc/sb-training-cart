@@ -30,13 +30,6 @@ public class RequestConfig implements WebMvcConfigurer {
         };
     }
 
-    @Bean
-    public RestTemplate getRestTemplate() {
-        RestTemplate restTemplate = new RestTemplate();
-
-        return restTemplate;
-    }
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new Logger());
