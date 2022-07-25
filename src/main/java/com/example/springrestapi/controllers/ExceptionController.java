@@ -13,6 +13,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -58,5 +59,10 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<Object>(ex.getMessage(), HttpStatus.BAD_REQUEST);
 
+    }
+
+    @ExceptionHandler(HttpServerErrorException.class)
+    protected ResponseEntity<Object> handleHttpClientErrorException(HttpServerErrorException ex) {
+        return new ResponseEntity<Object>("Invalid token", HttpStatus.BAD_REQUEST);
     }
 }

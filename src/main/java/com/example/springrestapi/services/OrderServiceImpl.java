@@ -12,11 +12,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.springrestapi.asyncAction.ActionKeys;
+import com.example.springrestapi.asyncAction.RunnableStore;
+import com.example.springrestapi.configurations.RabbitMQConfig;
 import com.example.springrestapi.entities.Order;
 import com.example.springrestapi.entities.OrderDetail;
 import com.example.springrestapi.mappers.OrderMapper;
+import com.example.springrestapi.messages.MessageBuilder;
+import com.example.springrestapi.messages.QueueMessage;
+import com.example.springrestapi.messages.data.UserIdMessage;
 import com.example.springrestapi.models.EditOrderDto;
 import com.example.springrestapi.models.OrderDto;
+import com.example.springrestapi.publishers.Publisher;
 import com.example.springrestapi.repositories.OrderRepository;
 import com.example.springrestapi.responseBodies.AllOrderResponse;
 import com.example.springrestapi.responseBodies.SingleOrderResponse;
@@ -29,15 +36,26 @@ public class OrderServiceImpl implements OrderService {
     private OrderMapper orderMapper;
 
     @Autowired
-
     private OrderRepository orderRepository;
+
+    @Autowired
+    Publisher publisher;
 
     @Override
     @Transactional
     public SingleOrderResponse createOrder(OrderDto dto) throws Exception {
 
         Order order = orderMapper.toOrder(dto);
-        orderRepository.save(order);
+
+        String routingKey = "checkUserIdOfOrder.user.check";
+
+        QueueMessage message = MessageBuilder.buildMessage(new UserIdMessage(dto.getAccountId()),
+                RabbitMQConfig.QUEUE_NAME, routingKey, RabbitMQConfig.TOPIC_EXCHANGE);
+
+        publisher.sendMessage(message, routingKey);
+        Runnable action = () -> orderRepository.save(order);
+
+        RunnableStore.addAction(ActionKeys.saveOrder + message.getMessageId(), action);
 
         return orderMapper.toSingleOrderResponse(order);
 

@@ -14,7 +14,10 @@ public class OrderDelegateService implements DelegateService {
     public void receiveAction(String actionType, String domain, QueueMessage message) throws Exception {
         switch (actionType) {
             case "reduceQuantity":
-                RunnableStore.runAction(ActionKeys.saveOrderDetail);
+                RunnableStore.runAction(ActionKeys.saveOrderDetail + message.getMessageId());
+                break;
+            case "checkUserIdOfOrder":
+                RunnableStore.runAction(ActionKeys.saveOrder + message.getMessageId());
                 break;
             case "error":
                 handleError(domain, message);
@@ -31,6 +34,9 @@ public class OrderDelegateService implements DelegateService {
         switch (reason) {
             case "reduceQuantityItemNotFound":
                 RunnableStore.removeAction(ActionKeys.saveOrderDetail + message.getMessageId());
+                break;
+            case "userIdOfOrderNotFound":
+                RunnableStore.removeAction(ActionKeys.saveOrder + message.getMessageId());
                 break;
         }
         System.out.println(reason + "  " + message.getMessageId());
