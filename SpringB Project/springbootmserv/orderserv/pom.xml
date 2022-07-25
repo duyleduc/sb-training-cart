@@ -8,11 +8,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.r00t</groupId>
-	<artifactId>usermserv</artifactId>
+	<artifactId>orderserv</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>usermserv</name>
-	<description>User Service</description>
-
+	<name>orderserv</name>
+	<description>Order Service</description>
 
 	<properties>
 		<java.version>18</java.version>
