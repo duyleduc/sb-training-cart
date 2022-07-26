@@ -9,10 +9,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -23,13 +25,14 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class Orders {
-    @Id
-    @GeneratedValue
-    @Column(name = "orderID", updatable = false, columnDefinition = "BIGSERIAL NOT NULL")
-    private BigInteger ID;
+    @Id 
+    @GenericGenerator(name = "uuid2", strategy= "uuid2")
+    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "uuid2")
+    @Column(name = "orderID", updatable = false, length = 36, nullable = false)
+    private String ID;
 
     @Column
-    private String userID;
+    private BigInteger userID;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.ALL }, mappedBy = "orders")
     private List<OrderDetails> detailsList;
@@ -46,9 +49,6 @@ public class Orders {
     @UpdateTimestamp
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
     private Date updatedAt;
-
-    @Column(columnDefinition = "boolean default false")
-    private boolean isDeleted;
 
     @Column
     private String comment;

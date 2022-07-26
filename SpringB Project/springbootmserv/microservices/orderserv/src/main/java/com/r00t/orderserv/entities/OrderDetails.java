@@ -1,6 +1,5 @@
 package com.r00t.orderserv.entities;
 
-import java.math.BigInteger;
 import java.sql.Date;
 
 import javax.persistence.CascadeType;
@@ -8,11 +7,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -24,9 +25,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OrderDetails {
     @Id
-    @GeneratedValue
-    @Column(name = "detailsID", columnDefinition = "BIGSERIAL NOT NULL", updatable = false)
-    private BigInteger id;
+    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "uuid2")
+    @Column(name = "detailsID", updatable = false, length = 36, nullable = false)
+    private String ID;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
     @JoinColumn(name = "orderID", updatable = false)
@@ -50,7 +52,4 @@ public class OrderDetails {
     @UpdateTimestamp
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
     private Date updatedAt;
-
-    @Column(columnDefinition = "boolean default false")
-    private boolean isDeleted;
 }
