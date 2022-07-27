@@ -16,7 +16,6 @@ import com.r00t.usermserv.services.impls.UserServiceImpl;
 @Service
 public class UserService implements UserServiceImpl {
 
-
     @Autowired
     private UserMapper mapper;
 
@@ -70,4 +69,5 @@ public class UserService implements UserServiceImpl {
             throw exception;
         }
     }
+
 }

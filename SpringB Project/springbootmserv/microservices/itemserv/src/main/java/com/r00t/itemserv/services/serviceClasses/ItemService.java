@@ -1,5 +1,6 @@
 package com.r00t.itemserv.services.serviceClasses;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,6 +116,19 @@ public class ItemService implements ItemServiceImpl {
         Optional<Items> DBreturnItem = iRepository.findByItemID(itemID);
         if (DBreturnItem.isPresent()) {
             throw new EntityExistsException("Already got that Item with ItemID " + itemID + " dawg.");
+        }
+    }
+
+    public void UpdateQuantity(String itemID, int quantity) throws Exception {
+        try {
+            Items DBreturnItem = iRepository.findByItemID(itemID).get();
+            int newqty = DBreturnItem.getQuantity().intValue() - quantity;
+            System.out.println(newqty);
+            DBreturnItem.setQuantity(new BigInteger(String.valueOf(newqty)));
+
+            iRepository.save(DBreturnItem);
+        } catch (Exception e) {
+            throw e;
         }
     }
 

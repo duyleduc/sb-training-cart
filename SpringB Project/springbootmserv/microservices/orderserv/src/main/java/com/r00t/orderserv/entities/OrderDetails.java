@@ -1,6 +1,7 @@
 package com.r00t.orderserv.entities;
 
 import java.sql.Date;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,9 +14,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,7 +29,7 @@ public class OrderDetails {
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "uuid2")
     @Column(name = "detailsID", updatable = false, length = 36, nullable = false)
-    private String ID;
+    private UUID ID;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
     @JoinColumn(name = "orderID", updatable = false)
@@ -43,7 +44,7 @@ public class OrderDetails {
     @Column
     private String status;
 
-    @CreatedDate
+    @CreationTimestamp
     @Column(updatable = false)
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
     private Date createdAt;

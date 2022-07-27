@@ -1,15 +1,12 @@
 package com.r00t.orderserv.services.Impl;
 
-import java.util.List;
+import java.util.UUID;
 
 import com.r00t.orderserv.models.DTO.OrderDetailsDTO;
+import com.r00t.orderserv.models.DTO.responsebody.ItemDTO;
 
 public interface DetailServiceImpl {
-    OrderDetailsDTO getDetail(String detailID) throws Exception;
+    OrderDetailsDTO createDetail(UUID orderID, ItemDTO itemDTO, int quantity) throws Exception;
 
-    List<OrderDetailsDTO> getAllDetails(String orderID) throws Exception;
-
-    OrderDetailsDTO createDetail(String orderID, OrderDetailsDTO detail) throws Exception;
-
-    OrderDetailsDTO updateDetails(String status) throws Exception;
+    OrderDetailsDTO updateDetails(UUID detailID, String status) throws Exception;
 }
