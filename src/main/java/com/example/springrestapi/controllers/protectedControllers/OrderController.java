@@ -29,7 +29,7 @@ import com.example.springrestapi.services.interfaces.OrderService;
 public class OrderController {
 
     @Autowired
-    OrderService orderService;
+    private OrderService orderService;
 
     @GetMapping
     public ResponseEntity<List<AllOrderResponse>> getOrders() throws Exception {

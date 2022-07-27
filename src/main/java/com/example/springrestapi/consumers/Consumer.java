@@ -14,7 +14,7 @@ public class Consumer {
 
     @Autowired
     @Qualifier("orderDelegateService")
-    DelegateService orderDelegateService;
+    private DelegateService orderDelegateService;
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
     public void listen(QueueMessage message) {

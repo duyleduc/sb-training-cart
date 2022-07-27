@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public final class RunnableStore {
     private static Map<String, Runnable> actions = new HashMap<>();
 
+    @Transactional
     public static void runAction(String key) {
         actions.get(key).run();
         actions.remove(key);

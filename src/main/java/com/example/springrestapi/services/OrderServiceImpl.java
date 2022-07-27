@@ -39,7 +39,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    Publisher publisher;
+    private Publisher publisher;
 
     @Override
     @Transactional

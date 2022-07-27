@@ -3,7 +3,6 @@ package com.example.springrestapi.controllers;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletException;
 import javax.validation.ConstraintViolationException;
 
 import org.springframework.http.HttpHeaders;
@@ -51,13 +50,6 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
             errors.put(e.getPropertyPath().toString(), e.getMessage());
         });
         return new ResponseEntity<Object>(errors, HttpStatus.BAD_REQUEST);
-
-    }
-
-    @ExceptionHandler(ServletException.class)
-    protected ResponseEntity<Object> handleServletException(ServletException ex) {
-
-        return new ResponseEntity<Object>(ex.getMessage(), HttpStatus.BAD_REQUEST);
 
     }
 
