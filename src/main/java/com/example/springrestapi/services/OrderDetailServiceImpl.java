@@ -14,20 +14,17 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.springrestapi.asyncAction.ActionKeys;
 import com.example.springrestapi.asyncAction.RunnableStore;
-import com.example.springrestapi.configurations.RabbitMQConfig;
 import com.example.springrestapi.entities.Order;
 import com.example.springrestapi.entities.OrderDetail;
 import com.example.springrestapi.mappers.OrderDetailMapper;
-import com.example.springrestapi.messages.MessageBuilder;
-import com.example.springrestapi.messages.QueueMessage;
 import com.example.springrestapi.messages.data.CatalogItemQuantityMessage;
 import com.example.springrestapi.models.EditOrderDetailDto;
 import com.example.springrestapi.models.OrderDetailDto;
-import com.example.springrestapi.publishers.Publisher;
 import com.example.springrestapi.repositories.OrderDetailRepository;
 import com.example.springrestapi.responseBodies.OrderDetailResponse;
 import com.example.springrestapi.services.interfaces.OrderDetailService;
 import com.example.springrestapi.services.interfaces.OrderService;
+import com.example.springrestapi.services.interfaces.PublisherService;
 
 @Service
 public class OrderDetailServiceImpl implements OrderDetailService {
@@ -42,7 +39,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     private OrderDetailMapper orderDetailMapper;
 
     @Autowired
-    private Publisher publisher;
+    private PublisherService publisherService;
 
     @Override
     @Transactional
@@ -52,12 +49,9 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
         CatalogItemQuantityMessage messageData = new CatalogItemQuantityMessage(dto.getItemId(), dto.getQuantity());
         String routingKey = "reduceQuantity.catalog.createOrderDetail";
-        QueueMessage message = MessageBuilder.buildMessage(messageData, RabbitMQConfig.QUEUE_NAME, routingKey,
-                RabbitMQConfig.TOPIC_EXCHANGE);
-        publisher.sendMessage(message, routingKey);
-
+        UUID messageId = publisherService.sendMessage(messageData, routingKey);
         Runnable action = () -> orderDetailRepository.save(orderDetail);
-        RunnableStore.addAction(ActionKeys.saveOrderDetail + message.getMessageId(), action);
+        RunnableStore.addAction(ActionKeys.saveOrderDetail + messageId, action);
         return orderDetailMapper.toOrderDetailResponse(orderDetail);
     }
 

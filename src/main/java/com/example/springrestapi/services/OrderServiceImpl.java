@@ -14,20 +14,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.springrestapi.asyncAction.ActionKeys;
 import com.example.springrestapi.asyncAction.RunnableStore;
-import com.example.springrestapi.configurations.RabbitMQConfig;
 import com.example.springrestapi.entities.Order;
-import com.example.springrestapi.entities.OrderDetail;
 import com.example.springrestapi.mappers.OrderMapper;
-import com.example.springrestapi.messages.MessageBuilder;
-import com.example.springrestapi.messages.QueueMessage;
 import com.example.springrestapi.messages.data.UserIdMessage;
 import com.example.springrestapi.models.EditOrderDto;
 import com.example.springrestapi.models.OrderDto;
-import com.example.springrestapi.publishers.Publisher;
 import com.example.springrestapi.repositories.OrderRepository;
 import com.example.springrestapi.responseBodies.AllOrderResponse;
 import com.example.springrestapi.responseBodies.SingleOrderResponse;
 import com.example.springrestapi.services.interfaces.OrderService;
+import com.example.springrestapi.services.interfaces.PublisherService;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -39,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private Publisher publisher;
+    private PublisherService publisherService;
 
     @Override
     @Transactional
@@ -49,13 +45,10 @@ public class OrderServiceImpl implements OrderService {
 
         String routingKey = "checkUserIdOfOrder.user.check";
 
-        QueueMessage message = MessageBuilder.buildMessage(new UserIdMessage(dto.getAccountId()),
-                RabbitMQConfig.QUEUE_NAME, routingKey, RabbitMQConfig.TOPIC_EXCHANGE);
-
-        publisher.sendMessage(message, routingKey);
+        UUID messageId = publisherService.sendMessage(new UserIdMessage(dto.getAccountId()), routingKey);
         Runnable action = () -> orderRepository.save(order);
 
-        RunnableStore.addAction(ActionKeys.saveOrder + message.getMessageId(), action);
+        RunnableStore.addAction(ActionKeys.saveOrder + messageId, action);
 
         return orderMapper.toSingleOrderResponse(order);
 

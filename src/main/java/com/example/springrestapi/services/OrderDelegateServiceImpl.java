@@ -1,14 +1,14 @@
-package com.example.springrestapi.delegateService;
+package com.example.springrestapi.services;
 
 import org.springframework.stereotype.Service;
 
 import com.example.springrestapi.asyncAction.ActionKeys;
 import com.example.springrestapi.asyncAction.RunnableStore;
-import com.example.springrestapi.delegateService.interfaces.DelegateService;
 import com.example.springrestapi.messages.QueueMessage;
+import com.example.springrestapi.services.interfaces.DelegateService;
 
 @Service("orderDelegateService")
-public class OrderDelegateService implements DelegateService {
+public class OrderDelegateServiceImpl implements DelegateService {
 
     @Override
     public void receiveAction(String actionType, String domain, QueueMessage message) throws Exception {
