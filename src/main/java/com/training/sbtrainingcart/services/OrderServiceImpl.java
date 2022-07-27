@@ -4,11 +4,14 @@ import com.training.sbtrainingcart.entities.Order;
 import com.training.sbtrainingcart.exceptions.QuantityIsLargerThanItemInWareHouse;
 import com.training.sbtrainingcart.exceptions.ResourceNotFoundException;
 import com.training.sbtrainingcart.models.CustomMessage;
+import com.training.sbtrainingcart.models.ProductDto;
 import com.training.sbtrainingcart.models.TestMessage;
 import com.training.sbtrainingcart.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,7 +30,17 @@ public class OrderServiceImpl implements OrderService{
     @Transactional
     public Order saveOrder(Order order) {
 
-        Long quantity = orderRepository.getQuantityByItemId(order.getOrderDetail().getItemId());
+
+        RestTemplate restTemplate = new RestTemplate();
+        String fooResourceUrl = "http://localhost:8090/api/v1/protected/products";
+        ResponseEntity<ProductDto[]> responseEntity = restTemplate.getForEntity(fooResourceUrl,ProductDto[].class);
+        ProductDto[] productDtos = responseEntity.getBody();
+        long quantity = 0;
+        for(ProductDto productDto: productDtos){
+            if(productDto.getItemID().equals(order.getOrderDetail().getItemId())  ){
+                quantity = productDto.getQuantity();
+            }
+        }
 
         if(order.getOrderDetail().getQuantity() > quantity){
             throw new QuantityIsLargerThanItemInWareHouse();

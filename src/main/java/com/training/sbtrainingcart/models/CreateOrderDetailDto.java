@@ -32,4 +32,6 @@ public class CreateOrderDetailDto {
 
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
+
+
 }
